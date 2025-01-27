@@ -2,15 +2,6 @@ pipeline {
     agent any
     
     stages {
-        stage("checkout"){
-            steps {
-               sh "ls"
-                git branch:'main', url: 'https://github.com/gomaiwun/jenkins-gs-spring-petclinic.git'
-                sh "ls"
-                sh "pwd"
-                sh "whoami" 
-            }
-         }
         stage("build"){
             steps {
                 sh "./mvnw package"

@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        EC2_USER = 'ec2-user' // Replace with your EC2 username
-        EC2_HOST = '35.170.201.45' // Replace with your EC2 instance IP or hostname
+        EC2_USER = 'ubuntu' // Replace with your EC2 username
+        EC2_HOST = '3.83.218.178' // Replace with your EC2 instance IP or hostname
         EC2_KEY = credentials('ec2-server-key') // Replace with your Jenkins credential ID
         REMOTE_PATH = '/home/ec2-user' // Path on EC2 where you want to deploy
     }

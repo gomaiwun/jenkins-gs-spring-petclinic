@@ -4,7 +4,7 @@ pipeline {
         EC2_USER = 'ubuntu' // Replace with your EC2 username
         EC2_HOST = '3.83.218.178' // Replace with your EC2 instance IP or hostname
         EC2_KEY = credentials('ec2-server-key') // Replace with your Jenkins credential ID
-        REMOTE_PATH = '/home/ec2-user' // Path on EC2 where you want to deploy
+        REMOTE_PATH = '/home/ubuntu' // Path on EC2 where you want to deploy
     }
     stages {
         stage("build") {

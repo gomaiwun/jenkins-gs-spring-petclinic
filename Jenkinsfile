@@ -27,7 +27,7 @@ pipeline {
                 script {
                     // Connect to the EC2 instance and run the JAR file
                     sh """
-                    ssh -i ${EC2_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 'java -jar ${REMOTE_PATH}/spring-petclinic-3.1.0-SNAPSHOT.jar --Dserver.port=9000'
+                    ssh -i ${EC2_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 'java -jar ${REMOTE_PATH}/spring-petclinic-3.1.0-SNAPSHOT.jar --Dserver.port=9000 > /dev/null 2>&1 &'
                     """
                 }
             }

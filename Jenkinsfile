@@ -1,48 +1,65 @@
 pipeline {
     agent any
+    parameters {
+        string(name: 'VERSION', defaultValue: '1.0.0', description: 'Enter the version for the Docker image.')
+    }
     environment {
-        EC2_USER = 'ubuntu' // Replace with your EC2 username
-        EC2_HOST = '3.83.218.178' // Replace with your EC2 instance IP or hostname
+        // Project parameters - replace with your actual values
+        IMAGE_NAME = "gomaiwun/demo-application:${params.VERSION}" // Docker repository image name with tag
+        EC2_USER = 'ubuntu' // Your EC2 username
+        EC2_HOST = '3.83.218.178' // Your EC2 instance IP or hostname
         REMOTE_PATH = '/home/ubuntu' // Path on EC2 where you want to deploy
+        DOCKER_CREDENTIALS = credentials('docker-credentials-id') // Docker credentials ID
+        EC2_KEY = credentials('ubuntu-server-key') // Jenkins credential ID for EC2 SSH key
     }
     stages {
-        stage("build") {
+        stage("Build") {
             steps {
-                // Build the application
-                sh "./mvnw clean package"
+                // Clean and package the application using Maven
+                sh './mvnw clean package'
             }
         }
-        stage("transfer JAR") {
+        stage("Build Docker Image") {
             steps {
                 script {
-                    def jarFile = 'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
-                    // Securely transfer the JAR file to EC2 instance using SSH agent
-                    sshagent(['ubuntu-server-key']) { // Replace with your Jenkins credential ID
+                    // Build the Docker image with a specified tag
+                    sh "docker build -t ${IMAGE_NAME} ."
+                }
+            }
+        }
+        stage("Login to Docker Registry") {
+            steps {
+                script {
+                    // Login to the private Docker registry securely
+                    withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
-                        scp -o StrictHostKeyChecking=no ${jarFile} ${EC2_USER}@${EC2_HOST}:${REMOTE_PATH}
+                        echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
                         """
                     }
                 }
             }
         }
-        stage("deploy") {
+        stage("Push Docker Image") {
             steps {
                 script {
-                    // Run the JAR file on the EC2 instance securely via SSH agent
-                    sshagent(['ubuntu-server-key']) { // Replace with your Jenkins credential ID
-                        sh """
-                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 'java -Dserver.port=9000 -jar ${REMOTE_PATH}/spring-petclinic-3.1.0-SNAPSHOT.jar > /dev/null 2>&1 &'
-                        """
-                    }
+                    // Push the Docker image with the specified tag to the repository
+                    sh "docker push ${IMAGE_NAME}"
                 }
             }
         }
-        stage("capture") {
+        stage("Deploy to EC2") {
             steps {
-                // Capture artifacts
-                archiveArtifacts '**/target/*.jar'
-                jacoco()
-                junit '**/target/surefire-reports/TEST*.xml'
+                script {
+                    // SSH into EC2 and deploy the Docker container securely
+                    sshagent(['ec2-server-key']) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
+                        docker pull ${IMAGE_NAME} &&
+                        docker run -d -p 9000:9000 --name your-container-name ${IMAGE_NAME}
+                        '
+                        """
+                    }
+                }
             }
         }
     }

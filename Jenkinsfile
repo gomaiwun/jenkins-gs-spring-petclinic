@@ -6,6 +6,7 @@ pipeline {
         string(name: 'IMAGE_NAME', defaultValue: 'gomaiwun/demo-application', description: 'Enter the Docker image name (without tag).') // Added IMAGE_NAME parameter
         string(name: 'EC2_USER', defaultValue: 'ubuntu', description: 'Enter the EC2 username.') // Added EC2_USER parameter
         string(name: 'CONTAINER_NAME', defaultValue: 'your-container-name', description: 'Enter the name for the Docker container.') // Added CONTAINER_NAME parameter
+        string(name: 'PROFILE', defaultValue: 'mysql', description: 'Enter the Docker Compose profile to use (leave blank to use all services).') // Added PROFILE parameter
     }
     environment {
         // Project parameters - replace with your actual values
@@ -58,7 +59,7 @@ pipeline {
                         scp -o StrictHostKeyChecking=no -i ${EC2_KEY} docker-compose.yml ${EC2_USER}@${EC2_HOST}:${REMOTE_PATH}
                         ssh -o StrictHostKeyChecking=no -i ${EC2_KEY} ${EC2_USER}@${EC2_HOST} '
                           cd ${REMOTE_PATH} &&
-                          docker-compose -f docker-compose.yml up -d
+                          docker-compose -f docker-compose.yml --profile ${params.PROFILE} up -d
                         '
                         """
                     }

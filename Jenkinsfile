@@ -10,7 +10,7 @@ pipeline {
     environment {
         // Project parameters - replace with your actual values
         FULL_IMAGE_NAME = "${params.IMAGE_NAME}:${params.VERSION}" // Full Docker image name with tag
-        REMOTE_PATH = '/home/ubuntu' // Path on EC2 where you want to deploy
+        REMOTE_PATH = '/home/ubuntu/applications' // Path on EC2 where you want to deploy
         DOCKER_CREDENTIALS = credentials('docker-credentials-id') // Docker credentials ID
         EC2_KEY = credentials('ubuntu-server-key') // Jenkins credential ID for EC2 SSH key
     }

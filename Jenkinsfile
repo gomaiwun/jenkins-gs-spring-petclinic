@@ -64,7 +64,7 @@ pipeline {
                         sh """
                         ssh -o StrictHostKeyChecking=no -i ${EC2_KEY} ${EC2_USER}@${EC2_HOST} '
                           cd ${REMOTE_PATH} &&
-                          IMAGE=${FULL_IMAGE} docker-compose -f docker-compose.yml --profile ${params.PROFILE} up -d
+                          IMAGE=${FULL_IMAGE_NAME} docker-compose -f docker-compose.yml --profile ${params.PROFILE} up -d
                         '
                         """
                     }

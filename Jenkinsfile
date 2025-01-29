@@ -7,7 +7,7 @@ pipeline {
         // Project parameters - replace with your actual values
         IMAGE_NAME = "gomaiwun/demo-application:${params.VERSION}" // Docker repository image name with tag
         EC2_USER = 'ubuntu' // Your EC2 username
-        EC2_HOST = '3.83.218.178' // Your EC2 instance IP or hostname
+        EC2_HOST = '34.205.72.138' // Your EC2 instance IP or hostname
         REMOTE_PATH = '/home/ubuntu' // Path on EC2 where you want to deploy
         DOCKER_CREDENTIALS = credentials('docker-credentials-id') // Docker credentials ID
         EC2_KEY = credentials('ubuntu-server-key') // Jenkins credential ID for EC2 SSH key

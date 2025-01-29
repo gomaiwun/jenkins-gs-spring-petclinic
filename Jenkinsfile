@@ -51,7 +51,7 @@ pipeline {
             steps {
                 script {
                     // SSH into EC2 and deploy the Docker container securely
-                    sshagent(['ec2-server-key']) {
+                    sshagent(['ubuntu-server-key']) {
                         sh """
                         ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
                         docker pull ${IMAGE_NAME} &&

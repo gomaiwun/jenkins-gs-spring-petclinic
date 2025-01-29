@@ -55,11 +55,16 @@ pipeline {
                 script {
                     // SSH into EC2 and deploy using Docker Compose
                     sshagent(['ubuntu-server-key']) {
+
+                         // Copy the Docker Compose file to the EC2 instance
                         sh """
-                        scp -o StrictHostKeyChecking=no -i ${EC2_KEY} docker-compose.yml ${EC2_USER}@${EC2_HOST}:${REMOTE_PATH}
+                        scp -o StrictHostKeyChecking=no -i ${EC2_KEY} docker-compose.yml ${params.EC2_USER}@${params.EC2_HOST}:${REMOTE_PATH}
+                        """
+                        // Execute the Docker Compose command on the EC2 instance
+                        sh """
                         ssh -o StrictHostKeyChecking=no -i ${EC2_KEY} ${EC2_USER}@${EC2_HOST} '
                           cd ${REMOTE_PATH} &&
-                          docker-compose -f docker-compose.yml --profile ${params.PROFILE} up -d
+                          IMAGE=${FULL_IMAGE} docker-compose -f docker-compose.yml --profile ${params.PROFILE} up -d
                         '
                         """
                     }

@@ -2,12 +2,14 @@ pipeline {
     agent any
     parameters {
         string(name: 'VERSION', defaultValue: '1.0.0', description: 'Enter the version for the Docker image.')
+        string(name: 'EC2_HOST', defaultValue: '34.205.72.138', description: 'Enter the EC2 instance IP or hostname.') // EC2_HOST parameter
+        string(name: 'IMAGE_NAME', defaultValue: 'gomaiwun/demo-application', description: 'Enter the Docker image name (without tag).') // Added IMAGE_NAME parameter
+        string(name: 'EC2_USER', defaultValue: 'ubuntu', description: 'Enter the EC2 username.') // Added EC2_USER parameter
+        string(name: 'CONTAINER_NAME', defaultValue: 'your-container-name', description: 'Enter the name for the Docker container.') // Added CONTAINER_NAME parameter
     }
     environment {
         // Project parameters - replace with your actual values
-        IMAGE_NAME = "gomaiwun/demo-application:${params.VERSION}" // Docker repository image name with tag
-        EC2_USER = 'ubuntu' // Your EC2 username
-        EC2_HOST = '34.205.72.138' // Your EC2 instance IP or hostname
+        FULL_IMAGE_NAME = "${params.IMAGE_NAME}:${params.VERSION}" // Full Docker image name with tag
         REMOTE_PATH = '/home/ubuntu' // Path on EC2 where you want to deploy
         DOCKER_CREDENTIALS = credentials('docker-credentials-id') // Docker credentials ID
         EC2_KEY = credentials('ubuntu-server-key') // Jenkins credential ID for EC2 SSH key
@@ -23,7 +25,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image with a specified tag
-                    sh "docker build -t ${IMAGE_NAME} ."
+                    sh "docker build -t ${FULL_IMAGE_NAME} ."
                 }
             }
         }
@@ -43,7 +45,7 @@ pipeline {
             steps {
                 script {
                     // Push the Docker image with the specified tag to the repository
-                    sh "docker push ${IMAGE_NAME}"
+                    sh "docker push ${FULL_IMAGE_NAME}"
                 }
             }
         }
@@ -53,9 +55,9 @@ pipeline {
                     // SSH into EC2 and deploy the Docker container securely
                     sshagent(['ubuntu-server-key']) {
                         sh """
-                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
-                        docker pull ${IMAGE_NAME} &&
-                        docker run -d -p 9000:9000 --name your-container-name ${IMAGE_NAME}
+                        ssh -o StrictHostKeyChecking=no ${params.EC2_USER}@${params.EC2_HOST} '
+                        sudo docker pull ${FULL_IMAGE_NAME} &&
+                        sudo docker run -d -p 9000:9000 --name ${params.CONTAINER_NAME} ${FULL_IMAGE_NAME}
                         '
                         """
                     }

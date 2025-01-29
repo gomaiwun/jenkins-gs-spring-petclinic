@@ -1,6 +1,10 @@
-version: "2.2"
+version: "3.8"
 
 services:
+  petclinic:
+    image: gomaiwun/demo-application
+    ports:
+      - 9000:9000
   mysql:
     image: mysql:8.0
     ports:
@@ -14,7 +18,7 @@ services:
     volumes:
       - "./conf.d:/etc/mysql/conf.d:ro"
     profiles:
-    - mysql
+      - mysql
   postgres:
     image: postgres:15.3
     ports:
@@ -24,4 +28,4 @@ services:
       - POSTGRES_USER=petclinic
       - POSTGRES_DB=petclinic
     profiles:
-    - postgres
+      - postgres

@@ -52,12 +52,13 @@ pipeline {
         stage("Deploy to EC2") {
             steps {
                 script {
-                    // SSH into EC2 and deploy the Docker container securely
+                    // SSH into EC2 and deploy using Docker Compose
                     sshagent(['ubuntu-server-key']) {
                         sh """
-                        ssh -o StrictHostKeyChecking=no ${params.EC2_USER}@${params.EC2_HOST} '
-                        sudo docker pull ${FULL_IMAGE_NAME} &&
-                        sudo docker run -d -p 9000:9000 --name ${params.CONTAINER_NAME} ${FULL_IMAGE_NAME}
+                        scp -o StrictHostKeyChecking=no -i ${EC2_KEY} docker-compose.yml ${EC2_USER}@${EC2_HOST}:${REMOTE_PATH}
+                        ssh -o StrictHostKeyChecking=no -i ${EC2_KEY} ${EC2_USER}@${EC2_HOST} '
+                          cd ${REMOTE_PATH} &&
+                          docker-compose -f docker-compose.yml up -d
                         '
                         """
                     }

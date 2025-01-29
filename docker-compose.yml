@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   petclinic:
-    image: gomaiwun/demo-application
+    image: gomaiwun/demo-application:1.0.0
     ports:
       - 9000:9000
   mysql:
